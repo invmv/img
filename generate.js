@@ -51,7 +51,7 @@ fs.readdir(imagesDir, (err, folders) => {
             fs.readdir(folderPath, (err, files) => {
                 if (err) return resolve();
                 files.forEach(file => {
-                    if (/\.(jpg|jpeg|png|gif)$/.test(file)) {
+                    if (/\.(jpg|jpeg|png|gif|webp)$/.test(file)) {
                         htmlContent += `<div class="image-container"><img src="images/${folder}/${file}" alt="${file}"></div>`;
                     }
                 });
