@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Image Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .category {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .category h2 {
+            margin-bottom: 10px;
+        }
+        .images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .images img {
+            width: 200px;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Image Gallery</h1>
+
+    <!-- Categories will be appended here -->
+    <div id="gallery"></div>
+
+    <script>
+        const repoOwner = "invmv";  // 替换为你的GitHub用户名
+        const repoName = "img";  // 替换为你的仓库名称
+        const apiBase = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/`;
+
+        // 获取每个文件夹的图片
+        async function fetchCategoryImages(category) {
+            const response = await fetch(apiBase + category);
+            const files = await response.json();
+
+            return files
+                .filter(file => file.type === "file" && file.name.match(/\.(jpg|jpeg|png|gif)$/i))
+                .map(file => file.download_url);
+        }
+
+        // 创建展示类别图片的容器
+        async function createCategoryGallery(category) {
+            const images = await fetchCategoryImages(category);
+
+            const categoryDiv = document.createElement("div");
+            categoryDiv.className = "category";
+
+            const title = document.createElement("h2");
+            title.innerText = category;
+            categoryDiv.appendChild(title);
+
+            const imagesDiv = document.createElement("div");
+            imagesDiv.className = "images";
+
+            images.forEach(url => {
+                const img = document.createElement("img");
+                img.src = url;
+                imagesDiv.appendChild(img);
+            });
+
+            categoryDiv.appendChild(imagesDiv);
+            document.getElementById("gallery").appendChild(categoryDiv);
+        }
+
+        // 初始化页面并添加所有类别
+        async function initGallery() {
+            const categories = ["category1", "category2"]; // 替换为你的文件夹列表
+            for (const category of categories) {
+                await createCategoryGallery(category);
+            }
+        }
+
+        initGallery();
+    </script>
+</body>
+</html>
