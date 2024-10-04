@@ -4,7 +4,7 @@ const path = require('path');
 const imagesDir = path.join(__dirname, 'images');
 const outputDir = path.join(__dirname, 'output');
 const outputFile = path.join(outputDir, 'index.html');
-
+const cdn = `https://cdn.jsdelivr.net/gh/invmv/img`;
 // 生成 HTML 内容
 let htmlContent = `
 <!DOCTYPE html>
@@ -52,7 +52,7 @@ fs.readdir(imagesDir, (err, folders) => {
                 if (err) return resolve();
                 files.forEach(file => {
                     if (/\.(jpg|jpeg|png|gif|webp)$/.test(file)) {
-                        htmlContent += `<div class="image-container"><img src="images/${folder}/${file}" alt="${file}"></div>`;
+                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" alt="${file}"></div>`;
                     }
                 });
                 resolve();
