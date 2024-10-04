@@ -44,6 +44,15 @@
         const repoName = "img";  // 替换为你的仓库名称
         const apiBase = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/`;
 
+        // 获取仓库中的文件夹列表
+        async function fetchCategories() {
+            const response = await fetch(apiBase);
+            const items = await response.json();
+            
+            // 筛选出文件夹
+            return items.filter(item => item.type === "dir").map(folder => folder.name);
+        }
+
         // 获取每个文件夹的图片
         async function fetchCategoryImages(category) {
             const response = await fetch(apiBase + category);
@@ -78,9 +87,9 @@
             document.getElementById("gallery").appendChild(categoryDiv);
         }
 
-        // 初始化页面并添加所有类别
+        // 初始化页面并加载所有类别和图片
         async function initGallery() {
-            const categories = ["category1", "category2"]; // 替换为你的文件夹列表
+            const categories = await fetchCategories();
             for (const category of categories) {
                 await createCategoryGallery(category);
             }
