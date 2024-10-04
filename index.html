@@ -55,12 +55,21 @@
 
         // 获取每个文件夹的图片
         async function fetchCategoryImages(category) {
-            const response = await fetch(apiBase + category);
-            const files = await response.json();
-
-            return files
-                .filter(file => file.type === "file" && file.name.match(/\.(jpg|jpeg|png|gif)$/i))
-                .map(file => file.download_url);
+            try {
+                const response = await fetch(apiBase + category);
+                if (!response.ok) throw new Error(`Error fetching category: ${response.statusText}`);
+                
+                const files = await response.json();
+                const imageUrls = files
+                    .filter(file => file.type === "file" && file.name.match(/\.(jpg|jpeg|png|gif)$/i))
+                    .map(file => file.download_url);
+                
+                console.log(`Images in ${category}:`, imageUrls); // Log image URLs for debugging
+                return imageUrls;
+            } catch (error) {
+                console.error(error);
+                return [];
+            }
         }
 
         // 创建展示类别图片的容器
