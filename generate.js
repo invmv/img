@@ -4,7 +4,8 @@ const path = require('path');
 const imagesDir = path.join(__dirname, 'images');
 const outputDir = path.join(__dirname, 'output');
 const outputFile = path.join(outputDir, 'index.html');
-const cdn = 'https://cdn.jsdelivr.net/gh/invmv/img';
+const repository = process.env.GITHUB_REPOSITORY;
+const cdn = `https://cdn.jsdelivr.net/gh/${repository}`;
 
 // 生成 HTML 内容
 let htmlContent = `
@@ -119,6 +120,7 @@ let htmlContent = `
             max-width: 90%;
             max-height: 90%;
             border-radius: 8px;
+            transition: transform 0.2s ease;
         }
         #lightbox:target {
             display: flex;
@@ -168,6 +170,7 @@ let htmlContent = `
                 img.addEventListener('click', function() {
                     lightbox.style.display = 'flex';
                     lightboxImg.src = this.src;
+                    lightboxImg.style.transform = 'scale(1)'; // 重置缩放
                 });
             });
 
@@ -181,6 +184,15 @@ let htmlContent = `
                 if (e.target === lightbox) {
                     lightbox.style.display = 'none';
                 }
+            });
+
+            // 放大缩小功能
+            let scale = 1;
+            lightbox.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                scale += e.deltaY * -0.01;
+                scale = Math.min(Math.max(0.5, scale), 3); // 限制缩放范围
+                lightboxImg.style.transform = 'scale(' + scale + ')';
             });
         });
     </script>
@@ -224,9 +236,9 @@ fs.readdir(imagesDir, (err, folders) => {
 
                 if (sortedFiles.length > 0) {
                     // 生成该文件夹的图片墙
-                    htmlContent += `<section class="folder-section" id="${folder}" role="tabpanel" aria-labelledby="${folder}" aria-hidden="true"><h2>${folder}</h2>`;
+                    htmlContent += `<section class="folder-section" id="${folder}" role="tabpanel" aria-labelledby="${folder}" aria-hidden="true">`;
                     sortedFiles.forEach(file => {
-                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" alt="${file}"></div>`;
+                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" alt="${file}" title="${file}"></div>`;
                     });
                     htmlContent += `</section>`;
                 }
