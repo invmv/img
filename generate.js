@@ -4,7 +4,8 @@ const path = require('path');
 const imagesDir = path.join(__dirname, 'images');
 const outputDir = path.join(__dirname, 'output');
 const outputFile = path.join(outputDir, 'index.html');
-const cdn = `https://cdn.jsdelivr.net/gh/invmv/img`;
+const cdn = 'https://cdn.jsdelivr.net/gh/invmv/img';
+
 // 生成 HTML 内容
 let htmlContent = `
 <!DOCTYPE html>
@@ -18,16 +19,32 @@ let htmlContent = `
             background-color: #121212;
             color: #ffffff;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         #gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
+            column-count: 1;
+            column-gap: 16px;
             padding: 16px;
         }
+        @media (min-width: 600px) {
+            #gallery {
+                column-count: 2;
+            }
+        }
+        @media (min-width: 900px) {
+            #gallery {
+                column-count: 3;
+            }
+        }
+        @media (min-width: 1200px) {
+            #gallery {
+                column-count: 4;
+            }
+        }
         .image-container {
-            position: relative;
-            width: calc(33.333% - 32px);
+            margin-bottom: 16px;
+            break-inside: avoid;
         }
         .image-container img {
             width: 100%;
@@ -62,9 +79,9 @@ fs.readdir(imagesDir, (err, folders) => {
 
     Promise.all(imagePromises).then(() => {
         htmlContent += `
-            </div>
-        </body>
-        </html>`;
+    </div>
+</body>
+</html>`;
 
         // 写入 HTML 文件
         fs.mkdirSync(outputDir, { recursive: true });
