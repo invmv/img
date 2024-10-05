@@ -52,6 +52,7 @@ let htmlContent = `
             color: #ffffff;
         }
         header nav a[aria-selected="true"] {
+            background-color: #3700B3;
             color: #ffffff;
         }
         #gallery {
@@ -79,6 +80,7 @@ let htmlContent = `
             width: 100%;
             border-radius: 8px;
             transition: transform 0.2s;
+            cursor: pointer;
         }
         .folder-section .image-container img:hover {
             transform: scale(1.05);
@@ -99,12 +101,49 @@ let htmlContent = `
                 column-count: 4;
             }
         }
+
+        /* 灯箱样式 */
+        #lightbox {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+        #lightbox:target {
+            display: flex;
+        }
+        #lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 36px;
+            color: white;
+            cursor: pointer;
+        }
+        #lightbox-close:hover {
+            color: #f1f1f1;
+        }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const tabs = document.querySelectorAll('nav a');
             const sections = document.querySelectorAll('.folder-section');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.querySelector('#lightbox img');
+            const closeLightbox = document.getElementById('lightbox-close');
 
+            // Tab 切换功能
             tabs.forEach(tab => {
                 tab.addEventListener('click', function(event) {
                     event.preventDefault();
@@ -123,6 +162,26 @@ let htmlContent = `
             // 默认激活第一个 Tab 和 Section
             tabs[0].setAttribute('aria-selected', 'true');
             sections[0].setAttribute('aria-hidden', 'false');
+
+            // 图片点击打开灯箱
+            document.querySelectorAll('.image-container img').forEach(img => {
+                img.addEventListener('click', function() {
+                    lightbox.style.display = 'flex';
+                    lightboxImg.src = this.src;
+                });
+            });
+
+            // 关闭灯箱
+            closeLightbox.addEventListener('click', function() {
+                lightbox.style.display = 'none';
+            });
+
+            // 点击灯箱区域外关闭灯箱
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox) {
+                    lightbox.style.display = 'none';
+                }
+            });
         });
     </script>
 </head>
@@ -167,7 +226,7 @@ fs.readdir(imagesDir, (err, folders) => {
                     // 生成该文件夹的图片墙
                     htmlContent += `<section class="folder-section" id="${folder}" role="tabpanel" aria-labelledby="${folder}" aria-hidden="true"><h2>${folder}</h2>`;
                     sortedFiles.forEach(file => {
-                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" title="${file}" alt="${file}"></div>`;
+                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" alt="${file}"></div>`;
                     });
                     htmlContent += `</section>`;
                 }
@@ -180,6 +239,13 @@ fs.readdir(imagesDir, (err, folders) => {
     Promise.all(folderPromises).then(() => {
         htmlContent += `
     </div>
+
+    <!-- 灯箱结构 -->
+    <div id="lightbox">
+        <span id="lightbox-close">&times;</span>
+        <img src="" alt="Lightbox Image">
+    </div>
+
 </body>
 </html>`;
 
