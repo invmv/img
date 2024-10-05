@@ -52,7 +52,6 @@ let htmlContent = `
             color: #ffffff;
         }
         header nav a[aria-selected="true"] {
-            background-color: #3700B3;
             color: #ffffff;
         }
         #gallery {
@@ -62,6 +61,10 @@ let htmlContent = `
         }
         .folder-section {
             margin-bottom: 48px;
+            display: none;
+        }
+        .folder-section[aria-hidden="false"] {
+            display: block;
         }
         .folder-section h2 {
             text-align: center;
@@ -97,6 +100,31 @@ let htmlContent = `
             }
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const tabs = document.querySelectorAll('nav a');
+            const sections = document.querySelectorAll('.folder-section');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(event) {
+                    event.preventDefault();
+
+                    // 移除所有选中状态
+                    tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+                    sections.forEach(section => section.setAttribute('aria-hidden', 'true'));
+
+                    // 设置当前选中的 tab 和 section
+                    this.setAttribute('aria-selected', 'true');
+                    const targetSection = document.querySelector(this.getAttribute('href'));
+                    targetSection.setAttribute('aria-hidden', 'false');
+                });
+            });
+
+            // 默认激活第一个 Tab 和 Section
+            tabs[0].setAttribute('aria-selected', 'true');
+            sections[0].setAttribute('aria-hidden', 'false');
+        });
+    </script>
 </head>
 <body>
     <header>
@@ -137,9 +165,9 @@ fs.readdir(imagesDir, (err, folders) => {
 
                 if (sortedFiles.length > 0) {
                     // 生成该文件夹的图片墙
-                    htmlContent += `<section class="folder-section" id="${folder}" role="tabpanel" aria-labelledby="${folder}"><h2>${folder}</h2>`;
+                    htmlContent += `<section class="folder-section" id="${folder}" role="tabpanel" aria-labelledby="${folder}" aria-hidden="true"><h2>${folder}</h2>`;
                     sortedFiles.forEach(file => {
-                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" title="${file}"alt="${file}"></div>`;
+                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" title="${file}" alt="${file}"></div>`;
                     });
                     htmlContent += `</section>`;
                 }
