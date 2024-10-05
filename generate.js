@@ -44,6 +44,9 @@ let indexHtmlContent = `
 fs.readdir(imagesDir, (err, folders) => {
     if (err) throw err;
 
+    // 确保输出目录存在
+    fs.mkdirSync(outputDir, { recursive: true });
+
     let folderPromises = folders.map(folder => {
         return new Promise((resolve) => {
             const folderPath = path.join(imagesDir, folder);
@@ -144,7 +147,6 @@ fs.readdir(imagesDir, (err, folders) => {
 </html>`;
 
         // 写入主页面 HTML 文件
-        fs.mkdirSync(outputDir, { recursive: true });
         fs.writeFileSync(path.join(outputDir, 'index.html'), indexHtmlContent);
         console.log('index.html 生成成功！');
     });
