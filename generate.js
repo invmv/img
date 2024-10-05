@@ -22,62 +22,110 @@ let htmlContent = `
             margin: 0;
             padding: 0;
         }
+        header {
+            background-color: #1f1f1f;
+            padding: 16px;
+            text-align: center;
+        }
+        header a {
+            color: #ffffff;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        header a:hover {
+            text-decoration: underline;
+        }
         #gallery {
-            column-count: 1;
-            column-gap: 16px;
             padding: 16px;
         }
-        @media (min-width: 600px) {
-            #gallery {
-                column-count: 2;
-            }
+        .folder-section {
+            margin-bottom: 48px;
         }
-        @media (min-width: 900px) {
-            #gallery {
-                column-count: 3;
-            }
+        .folder-section h2 {
+            text-align: center;
+            margin-bottom: 16px;
+            color: #ffffff;
         }
-        @media (min-width: 1200px) {
-            #gallery {
-                column-count: 4;
-            }
-        }
-        .image-container {
+        .folder-section .image-container {
             margin-bottom: 16px;
             break-inside: avoid;
         }
-        .image-container img {
+        .folder-section .image-container img {
             width: 100%;
             border-radius: 8px;
             transition: transform 0.2s;
         }
-        .image-container img:hover {
+        .folder-section .image-container img:hover {
             transform: scale(1.05);
+        }
+        @media (min-width: 600px) {
+            .folder-section {
+                column-count: 2;
+                column-gap: 16px;
+            }
+        }
+        @media (min-width: 900px) {
+            .folder-section {
+                column-count: 3;
+            }
+        }
+        @media (min-width: 1200px) {
+            .folder-section {
+                column-count: 4;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="gallery">`;
+    <header>
+`;
 
 fs.readdir(imagesDir, (err, folders) => {
     if (err) throw err;
 
-    let imagePromises = folders.map(folder => {
+    // 创建导航链接
+    folders.forEach(folder => {
+        htmlContent += `<a href="#${folder}">${folder}</a>`;
+    });
+
+    htmlContent += `
+    </header>
+    <div id="gallery">
+`;
+
+    let folderPromises = folders.map(folder => {
         return new Promise((resolve) => {
             const folderPath = path.join(imagesDir, folder);
             fs.readdir(folderPath, (err, files) => {
                 if (err) return resolve();
-                files.forEach(file => {
-                    if (/\.(jpg|jpeg|png|gif|webp)$/.test(file)) {
+
+                // 获取文件的修改时间并进行排序
+                const sortedFiles = files
+                    .filter(file => /\.(jpg|jpeg|png|gif|webp)$/.test(file))
+                    .map(file => {
+                        const filePath = path.join(folderPath, file);
+                        const stats = fs.statSync(filePath);
+                        return { file, mtime: stats.mtime };
+                    })
+                    .sort((a, b) => b.mtime - a.mtime) // 按修改时间倒序排序
+                    .map(item => item.file);
+
+                if (sortedFiles.length > 0) {
+                    // 生成该文件夹的图片墙
+                    htmlContent += `<section class="folder-section" id="${folder}"><h2>${folder}</h2>`;
+                    sortedFiles.forEach(file => {
                         htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" alt="${file}"></div>`;
-                    }
-                });
+                    });
+                    htmlContent += `</section>`;
+                }
+
                 resolve();
             });
         });
     });
 
-    Promise.all(imagePromises).then(() => {
+    Promise.all(folderPromises).then(() => {
         htmlContent += `
     </div>
 </body>
