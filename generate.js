@@ -14,30 +14,51 @@ let htmlContent = `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>图库展示</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             background-color: #121212;
             color: #ffffff;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
         }
         header {
             background-color: #1f1f1f;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 16px;
-            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        header a {
+        header nav {
+            display: flex;
+            gap: 16px;
+            border-bottom: 2px solid #3E3E3E;
+        }
+        header nav a {
             color: #ffffff;
-            margin: 0 10px;
             text-decoration: none;
             font-size: 18px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        header a:hover {
-            text-decoration: underline;
+        header nav a:hover, header nav a:focus {
+            background-color: #6200EE;
+            color: #ffffff;
+        }
+        header nav a[aria-selected="true"] {
+            background-color: #3700B3;
+            color: #ffffff;
         }
         #gallery {
             padding: 16px;
+            display: grid;
+            gap: 24px;
         }
         .folder-section {
             margin-bottom: 48px;
@@ -79,17 +100,20 @@ let htmlContent = `
 </head>
 <body>
     <header>
+        <nav role="tablist">
 `;
 
 fs.readdir(imagesDir, (err, folders) => {
     if (err) throw err;
 
-    // 创建导航链接
-    folders.forEach(folder => {
-        htmlContent += `<a href="#${folder}">${folder}</a>`;
+    // 创建导航链接，使用 tablist
+    folders.forEach((folder, index) => {
+        const isSelected = index === 0 ? 'true' : 'false';
+        htmlContent += `<a href="#${folder}" role="tab" aria-selected="${isSelected}" aria-controls="${folder}">${folder}</a>`;
     });
 
     htmlContent += `
+        </nav>
     </header>
     <div id="gallery">
 `;
@@ -113,9 +137,9 @@ fs.readdir(imagesDir, (err, folders) => {
 
                 if (sortedFiles.length > 0) {
                     // 生成该文件夹的图片墙
-                    htmlContent += `<section class="folder-section" id="${folder}"><h2>${folder}</h2>`;
+                    htmlContent += `<section class="folder-section" id="${folder}" role="tabpanel" aria-labelledby="${folder}"><h2>${folder}</h2>`;
                     sortedFiles.forEach(file => {
-                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" alt="${file}"></div>`;
+                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" title="${file}"alt="${file}"></div>`;
                     });
                     htmlContent += `</section>`;
                 }
