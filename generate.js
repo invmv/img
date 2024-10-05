@@ -3,11 +3,10 @@ const path = require('path');
 
 const imagesDir = path.join(__dirname, 'images');
 const outputDir = path.join(__dirname, 'output');
-const outputFile = path.join(outputDir, 'index.html');
 const cdn = 'https://cdn.jsdelivr.net/gh/invmv/img';
 
-// 生成 HTML 内容
-let htmlContent = `
+// 生成主页面 HTML 内容
+let indexHtmlContent = `
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -36,45 +35,6 @@ let htmlContent = `
         header a:hover {
             text-decoration: underline;
         }
-        #gallery {
-            padding: 16px;
-        }
-        .folder-section {
-            margin-bottom: 48px;
-        }
-        .folder-section h2 {
-            text-align: center;
-            margin-bottom: 16px;
-            color: #ffffff;
-        }
-        .folder-section .image-container {
-            margin-bottom: 16px;
-            break-inside: avoid;
-        }
-        .folder-section .image-container img {
-            width: 100%;
-            border-radius: 8px;
-            transition: transform 0.2s;
-        }
-        .folder-section .image-container img:hover {
-            transform: scale(1.05);
-        }
-        @media (min-width: 600px) {
-            .folder-section {
-                column-count: 2;
-                column-gap: 16px;
-            }
-        }
-        @media (min-width: 900px) {
-            .folder-section {
-                column-count: 3;
-            }
-        }
-        @media (min-width: 1200px) {
-            .folder-section {
-                column-count: 4;
-            }
-        }
     </style>
 </head>
 <body>
@@ -84,21 +44,65 @@ let htmlContent = `
 fs.readdir(imagesDir, (err, folders) => {
     if (err) throw err;
 
-    // 创建导航链接
-    folders.forEach(folder => {
-        htmlContent += `<a href="#${folder}">${folder}</a>`;
-    });
-
-    htmlContent += `
-    </header>
-    <div id="gallery">
-`;
-
     let folderPromises = folders.map(folder => {
         return new Promise((resolve) => {
             const folderPath = path.join(imagesDir, folder);
             fs.readdir(folderPath, (err, files) => {
                 if (err) return resolve();
+
+                // 生成每个文件夹的页面
+                let folderHtmlContent = `
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${folder} - 图库展示</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #gallery {
+            padding: 16px;
+        }
+        .image-container {
+            margin-bottom: 16px;
+            break-inside: avoid;
+        }
+        .image-container img {
+            width: 100%;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        .image-container img:hover {
+            transform: scale(1.05);
+        }
+        @media (min-width: 600px) {
+            #gallery {
+                column-count: 2;
+                column-gap: 16px;
+            }
+        }
+        @media (min-width: 900px) {
+            #gallery {
+                column-count: 3;
+            }
+        }
+        @media (min-width: 1200px) {
+            #gallery {
+                column-count: 4;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">${folder} 图片展示</h2>
+    <div id="gallery">
+`;
 
                 // 获取文件的修改时间并进行排序
                 const sortedFiles = files
@@ -112,51 +116,36 @@ fs.readdir(imagesDir, (err, folders) => {
                     .map(item => item.file);
 
                 if (sortedFiles.length > 0) {
-                    // 生成该文件夹的图片墙
-                    htmlContent += `<section class="folder-section" id="${folder}"><h2>${folder}</h2>`;
                     sortedFiles.forEach(file => {
-                        htmlContent += `<div class="image-container"><img data-src="${cdn}/images/${folder}/${file}" alt="${file}" class="lazy-load"></div>`;
+                        folderHtmlContent += `<div class="image-container"><img data-src="${cdn}/images/${folder}/${file}" alt="${file}" class="lazy-load"></div>`;
                     });
-                    htmlContent += `</section>`;
                 }
 
+                folderHtmlContent += `
+    </div>
+</body>
+</html>`;
+
+                // 写入该文件夹的 HTML 文件
+                const folderHtmlFile = path.join(outputDir, `${folder}.html`);
+                fs.writeFileSync(folderHtmlFile, folderHtmlContent);
+
+                // 在主页面中添加导航链接
+                indexHtmlContent += `<a href="${folder}.html">${folder}</a>`;
                 resolve();
             });
         });
     });
 
     Promise.all(folderPromises).then(() => {
-        htmlContent += `
-    </div>
-    <script>
-        const images = document.querySelectorAll('.lazy-load');
-        const options = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
-
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src; // 替换为真实的 src
-                    img.classList.remove('lazy-load'); // 移除懒加载类
-                    observer.unobserve(img); // 停止观察
-                }
-            });
-        }, options);
-
-        images.forEach(image => {
-            imageObserver.observe(image); // 开始观察每个图片
-        });
-    </script>
+        indexHtmlContent += `
+    </header>
 </body>
 </html>`;
 
-        // 写入 HTML 文件
+        // 写入主页面 HTML 文件
         fs.mkdirSync(outputDir, { recursive: true });
-        fs.writeFileSync(outputFile, htmlContent);
+        fs.writeFileSync(path.join(outputDir, 'index.html'), indexHtmlContent);
         console.log('index.html 生成成功！');
     });
 });
