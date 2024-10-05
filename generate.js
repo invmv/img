@@ -99,7 +99,7 @@ let htmlContent = `
         }
         @media (min-width: 1200px) {
             .folder-section {
-                column-count: 4;
+                column-count: 5;
             }
         }
 
