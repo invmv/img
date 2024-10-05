@@ -115,7 +115,7 @@ fs.readdir(imagesDir, (err, folders) => {
                     // 生成该文件夹的图片墙
                     htmlContent += `<section class="folder-section" id="${folder}"><h2>${folder}</h2>`;
                     sortedFiles.forEach(file => {
-                        htmlContent += `<div class="image-container"><img src="${cdn}/images/${folder}/${file}" alt="${file}"></div>`;
+                        htmlContent += `<div class="image-container"><img data-src="${cdn}/images/${folder}/${file}" alt="${file}" class="lazy-load"></div>`;
                     });
                     htmlContent += `</section>`;
                 }
@@ -128,6 +128,29 @@ fs.readdir(imagesDir, (err, folders) => {
     Promise.all(folderPromises).then(() => {
         htmlContent += `
     </div>
+    <script>
+        const images = document.querySelectorAll('.lazy-load');
+        const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src; // 替换为真实的 src
+                    img.classList.remove('lazy-load'); // 移除懒加载类
+                    observer.unobserve(img); // 停止观察
+                }
+            });
+        }, options);
+
+        images.forEach(image => {
+            imageObserver.observe(image); // 开始观察每个图片
+        });
+    </script>
 </body>
 </html>`;
 
