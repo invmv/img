@@ -7,7 +7,6 @@ const cdn = `https://cdn.jsdelivr.net/gh/${repository}`;
 const imagesDir = path.join(__dirname, 'images/brookstradingcourse');
 const outputDir = path.join(__dirname, 'output');
 const outputFile = path.join(outputDir, 'index.html');
-const outputFile = path.join(__dirname, 'output/index.html');
 
 
 // 获取所有图片及其标签
