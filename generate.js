@@ -81,7 +81,6 @@ function generateHTML(images) {
         }
 
         .gallery {
-            column-count: 4; /* 设置列数 */
             column-gap: 15px; /* 列之间的间距 */
             max-width: 90%;
             margin: 0 auto;
