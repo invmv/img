@@ -4,8 +4,10 @@ const path = require('path');
 const repository = process.env.GITHUB_REPOSITORY;
 const cdn = `https://cdn.jsdelivr.net/gh/${repository}`;
 // 读取图片文件夹
-const imagesDir = path.join(__dirname, 'img');
-const outputFile = path.join(__dirname, 'index.html');
+const imagesDir = path.join(__dirname, 'images/brookstradingcourse');
+const outputDir = path.join(__dirname, 'output');
+const outputFile = path.join(outputDir, 'index.html');
+const outputFile = path.join(__dirname, 'output/index.html');
 
 
 // 获取所有图片及其标签
@@ -383,5 +385,6 @@ function generateHTML(images) {
 // 执行生成
 const images = getImages();
 const htmlContent = generateHTML(images);
+fs.mkdirSync(outputDir, { recursive: true });
 fs.writeFileSync(outputFile, htmlContent);
 console.log('HTML 文件生成完成:', outputFile);
