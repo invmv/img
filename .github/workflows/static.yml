@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # 上传生成的 HTML 文件所在的目录
-          path: 'output'  # 假设你的输出目录是 output
+          path: 'index.html'  # 假设你的输出目录是 output
       
       - name: Deploy to GitHub Pages
         id: deployment
