@@ -81,11 +81,27 @@ function generateHTML(images) {
             }
 
             .gallery {
-                display: grid; /* 使用 grid 布局 */
                 column-gap: 15px; 
                 max-width: 90%;
                 margin: 0 auto;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 自适应列数 */
+            }
+            /* 响应式瀑布流 */
+            @media (min-width: 600px) {
+                .gallery {
+                    column-count: 2; /* 平板设备 2 列 */
+                }
+            }
+
+            @media (min-width: 900px) {
+                .gallery {
+                    column-count: 3; /* 小型电脑 3 列 */
+                }
+            }
+
+            @media (min-width: 1200px) {
+                .gallery {
+                    column-count: 4; /* 大型电脑 4 列 */
+                }
             }
             .gallery-item {
                 margin-bottom: 15px; /* 控制项之间的垂直间距 */

@@ -42,174 +42,171 @@ function generateHTML(images) {
     <title>图片库</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* 通用样式 */
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        .tag-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-
-        .tag-cloud a {
-            padding: 5px 10px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .tag-cloud a:hover {
-            opacity: 0.8;
-        }
-
-        .tag-cloud a.selected {
-            color: #ffffff;
-        }
-
-        .gallery {
-            column-count: 4; /* 设置列数 */
-            column-gap: 15px; /* 列之间的间距 */
-            max-width: 90%;
-            margin: 0 auto;
-        }
-
-        .gallery-item {
-            margin-bottom: 15px; /* 控制项之间的垂直间距 */
-            break-inside: avoid; /* 防止元素拆分到不同列 */
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-            transition: transform 0.3s;
-            cursor: pointer;
-        }
-
-        .gallery-item:hover {
-            transform: scale(1.05);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 8px;
-        }
-
-        /* 懒加载 */
-        .lazy {
-            opacity: 0;
-            transition: opacity 0.3s ease-in;
-        }
-
-        .lazy-loaded {
-            opacity: 1;
-        }
-
-        /* 灯箱样式 */
-        #lightbox {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        #lightbox img {
-            max-width: 90%;
-            max-height: 90%;
-            transform-origin: center center;
-            transition: transform 0.3s;
-        }
-
-        /* 明亮模式样式 */
-        @media (prefers-color-scheme: light) {
+            /* 通用样式 */
             body {
-                background-color: #f5f5f5;
-                color: #333;
+                font-family: 'Roboto', sans-serif;
+                margin: 0;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
 
             h1 {
-                color: #333;
+                margin-bottom: 20px;
+            }
+
+            .tag-cloud {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 20px;
+                justify-content: center;
             }
 
             .tag-cloud a {
-                color: #333;
-                background-color: #e0e0e0;
+                padding: 5px 10px;
+                border-radius: 5px;
+                text-decoration: none;
+                font-weight: 500;
+                transition: background-color 0.3s, color 0.3s;
+            }
+
+            .tag-cloud a:hover {
+                opacity: 0.8;
             }
 
             .tag-cloud a.selected {
-                background-color: #6200ea;
                 color: #ffffff;
             }
 
+            .gallery {
+                column-gap: 15px; 
+                max-width: 90%;
+                margin: 0 auto;
+            }
+            /* 响应式瀑布流 */
+            @media (min-width: 600px) {
+                .gallery {
+                    column-count: 2; /* 平板设备 2 列 */
+                }
+            }
+
+            @media (min-width: 900px) {
+                .gallery {
+                    column-count: 3; /* 小型电脑 3 列 */
+                }
+            }
+
+            @media (min-width: 1200px) {
+                .gallery {
+                    column-count: 4; /* 大型电脑 4 列 */
+                }
+            }
             .gallery-item {
-                background-color: #f5f5f5;
-            }
-        }
-
-        /* 暗黑模式样式 */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #121212;
-                color: #ffffff;
+                margin-bottom: 15px; /* 控制项之间的垂直间距 */
+                break-inside: avoid; /* 防止元素拆分到不同列 */
+                position: relative;
+                overflow: hidden;
+                border-radius: 8px;
+                transition: transform 0.3s;
+                cursor: pointer;
             }
 
-            h1 {
-                color: #f5f5f5;
+            .gallery-item:hover {
+                transform: scale(1.05);
             }
 
-            .tag-cloud a {
-                color: #b0bec5;
-                background-color: #333;
+            .gallery-item img {
+                width: 100%;
+                height: auto;
+                display: block;
+                border-radius: 8px;
             }
 
-            .tag-cloud a.selected {
-                background-color: #6200ea;
-                color: #ffffff;
+            /* 懒加载 */
+            .lazy {
+                opacity: 0;
+                transition: opacity 0.3s ease-in;
             }
 
-            .gallery-item {
-                background-color: #333;
+            .lazy-loaded {
+                opacity: 1;
             }
-        }
 
-        /* 响应式瀑布流 */
-        @media (min-width: 600px) {
-            .gallery {
-                column-count: 2; /* 平板设备 2 列 */
+            /* 灯箱样式 */
+            #lightbox {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
             }
-        }
 
-        @media (min-width: 900px) {
-            .gallery {
-                column-count: 3; /* 小型电脑 3 列 */
+            #lightbox img {
+                max-width: 90%;
+                max-height: 90%;
+                transform-origin: center center;
+                transition: transform 0.3s;
             }
-        }
 
-        @media (min-width: 1200px) {
-            .gallery {
-                column-count: 4; /* 大型电脑 4 列 */
+            /* 明亮模式样式 */
+            @media (prefers-color-scheme: light) {
+                body {
+                    background-color: #f5f5f5;
+                    color: #333;
+                }
+
+                h1 {
+                    color: #333;
+                }
+
+                .tag-cloud a {
+                    color: #333;
+                    background-color: #e0e0e0;
+                }
+
+                .tag-cloud a.selected {
+                    background-color: #6200ea;
+                    color: #ffffff;
+                }
+
+                .gallery-item {
+                    background-color: #f5f5f5;
+                }
             }
-        }
-    </style>
+
+            /* 暗黑模式样式 */
+            @media (prefers-color-scheme: dark) {
+                body {
+                    background-color: #121212;
+                    color: #ffffff;
+                }
+
+                h1 {
+                    color: #f5f5f5;
+                }
+
+                .tag-cloud a {
+                    color: #b0bec5;
+                    background-color: #333;
+                }
+
+                .tag-cloud a.selected {
+                    background-color: #6200ea;
+                    color: #ffffff;
+                }
+
+                .gallery-item {
+                    background-color: #333;
+                }
+            }
+        </style>
 </head>
 <body>
     <h1>图片库</h1>
