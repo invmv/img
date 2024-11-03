@@ -6,7 +6,7 @@ const cdn = `https://cdn.jsdelivr.net/gh/${repository}`;
 // 读取图片文件夹
 const imagesDir = path.join(__dirname, 'images/brookstradingcourse');
 const outputDir = path.join(__dirname, 'output');
-const outputFile = path.join(outputDir, 'index.html');
+const outputFile = path.join(outputDir, 'albroos.html');
 
 
 // 获取所有图片及其标签
@@ -39,7 +39,7 @@ function generateHTML(images) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片库</title>
+    <title>albrooks的blog图片墙</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
             /* 通用样式 */
@@ -206,10 +206,30 @@ function generateHTML(images) {
                     background-color: #333;
                 }
             }
+            /* 返回主页按钮样式 */
+            .back-button {
+                display: inline-block;
+                margin-bottom: 20px;
+                padding: 10px 20px;
+                background-color: #333;
+                color: #ffffff;
+                text-decoration: none;
+                font-size: 16px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+            
+            /* 鼠标悬停时的按钮效果 */
+            .back-button:hover {
+                background-color: #555;
+            }
         </style>
 </head>
 <body>
-    <h1>图片库</h1>
+    <!-- 返回主页按钮 -->
+    <a href="index.html" class="back-button">返回主页</a>
+    <br>
+    <h1>albrooks blog Price Action Chart</h1>
     <div id="tag-cloud" class="tag-cloud">
         ${sortedTags.map(([tag, count]) => `
             <a href="#" onclick="selectTag('${tag}', this)">${tag} (${count})</a>
@@ -339,14 +359,16 @@ function generateHTML(images) {
                 const matches = selectedTags.every(tag => itemTags.includes(tag));
 
                 if (matches) {
-                    item.style.display = 'inline-block';
+                    item.style.visibility = 'visible';
+                    item.style.position = 'static';
                     hasVisibleImages = true;
                 } else {
-                    item.style.display = 'none';
+                    item.style.visibility = 'hidden';
+                    item.style.position = 'absolute';
                 }
             });
 
-            document.getElementById('gallery').style.display = hasVisibleImages ? 'grid' : 'none';
+            document.getElementById('gallery').style.display = hasVisibleImages ? 'block' : 'none';
         }
 
         function updateTagCloud() {
@@ -363,15 +385,16 @@ function generateHTML(images) {
                 }
             });
 
-            // 对剩余标签按数量排序
-            const sortedRemainingTags = Array.from(remainingTags).sort((a, b) => b[1] - a[1]);
+            // 对剩余标签按数量排序，并过滤掉数量为 1 的标签
+            const sortedRemainingTags = Array.from(remainingTags)
+                .filter(([tag, count]) => count > 3) // 过滤掉计数为 3 的标签
+                .sort((a, b) => b[1] - a[1]);
 
             const tagCloud = document.getElementById('tag-cloud');
             tagCloud.innerHTML = sortedRemainingTags.map(([tag, count]) =>
                 \`<a href="#" onclick="selectTag('\${tag}', this)" class="\${selectedTags.includes(tag) ? 'selected' : ''}">\${tag} (\${count})</a>\`
             ).join(' ');
         }
-
     </script>
 </body>
 </html>
