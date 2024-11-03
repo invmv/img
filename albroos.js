@@ -40,11 +40,9 @@ function generateHTML(images) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>albrooks的blog图片墙</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
             /* 通用样式 */
             body {
-                font-family: 'Roboto', sans-serif;
                 margin: 0;
                 padding: 20px;
                 display: flex;
