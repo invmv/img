@@ -4,14 +4,12 @@ const path = require('path');
 const repository = process.env.GITHUB_REPOSITORY;
 const cdn = `https://cdn.jsdelivr.net/gh/${repository}`;
 // 读取图片文件夹
-const imagesDir = path.join(__dirname, 'images/brookstradingcourse');
+const imagesDir = path.join(__dirname, 'images');
 const outputDir = path.join(__dirname, 'output');
-const outputFile = path.join(outputDir, 'index.html');
 
-
-// 获取所有图片及其标签
-function getImages() {
-    const files = fs.readdirSync(imagesDir);
+// 获取指定文件夹下的所有图片及其标签
+function getImages(folderPath) {
+    const files = fs.readdirSync(folderPath);
     return files
         .filter(file => /\.(jpg|jpeg|png|gif|webp)$/.test(file))
         .map(file => {
@@ -21,7 +19,7 @@ function getImages() {
 }
 
 // 生成 HTML 内容
-function generateHTML(images) {
+function generateHTML(images, folderName) {
     // 生成标签云
     const tagCloud = {};
     images.forEach(img => {
@@ -29,8 +27,6 @@ function generateHTML(images) {
             tagCloud[tag] = (tagCloud[tag] || 0) + 1;
         });
     });
-
-    // 对标签云按数量排序
     const sortedTags = Object.entries(tagCloud).sort((a, b) => b[1] - a[1]);
 
     return `
@@ -39,12 +35,10 @@ function generateHTML(images) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片库</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <title>${folderName} 图片墙</title>
     <style>
             /* 通用样式 */
             body {
-                font-family: 'Roboto', sans-serif;
                 margin: 0;
                 padding: 20px;
                 display: flex;
@@ -206,10 +200,30 @@ function generateHTML(images) {
                     background-color: #333;
                 }
             }
+            /* 返回主页按钮样式 */
+            .back-button {
+                display: inline-block;
+                margin-bottom: 20px;
+                padding: 10px 20px;
+                background-color: #333;
+                color: #ffffff;
+                text-decoration: none;
+                font-size: 16px;
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+            
+            /* 鼠标悬停时的按钮效果 */
+            .back-button:hover {
+                background-color: #555;
+            }
         </style>
 </head>
 <body>
-    <h1>图片库</h1>
+    <!-- 返回主页按钮 -->
+    <a href="index.html" class="back-button">返回主页</a>
+    <br>
+    <h1>${folderName} 图片墙</h1>
     <div id="tag-cloud" class="tag-cloud">
         ${sortedTags.map(([tag, count]) => `
             <a href="#" onclick="selectTag('${tag}', this)">${tag} (${count})</a>
@@ -339,14 +353,16 @@ function generateHTML(images) {
                 const matches = selectedTags.every(tag => itemTags.includes(tag));
 
                 if (matches) {
-                    item.style.display = 'inline-block';
+                    item.style.visibility = 'visible';
+                    item.style.position = 'static';
                     hasVisibleImages = true;
                 } else {
-                    item.style.display = 'none';
+                    item.style.visibility = 'hidden';
+                    item.style.position = 'absolute';
                 }
             });
 
-            document.getElementById('gallery').style.display = hasVisibleImages ? 'grid' : 'none';
+            document.getElementById('gallery').style.display = hasVisibleImages ? 'block' : 'none';
         }
 
         function updateTagCloud() {
@@ -363,24 +379,35 @@ function generateHTML(images) {
                 }
             });
 
-            // 对剩余标签按数量排序
-            const sortedRemainingTags = Array.from(remainingTags).sort((a, b) => b[1] - a[1]);
+            // 对剩余标签按数量排序，并过滤掉数量为 1 的标签
+            const sortedRemainingTags = Array.from(remainingTags)
+                .filter(([tag, count]) => count > 1) // 过滤掉计数为 1 的标签
+                .sort((a, b) => b[1] - a[1]);
 
             const tagCloud = document.getElementById('tag-cloud');
             tagCloud.innerHTML = sortedRemainingTags.map(([tag, count]) =>
                 \`<a href="#" onclick="selectTag('\${tag}', this)" class="\${selectedTags.includes(tag) ? 'selected' : ''}">\${tag} (\${count})</a>\`
             ).join(' ');
         }
-
     </script>
 </body>
 </html>
     `;
 }
 
-// 执行生成
-const images = getImages();
-const htmlContent = generateHTML(images);
-fs.mkdirSync(outputDir, { recursive: true });
-fs.writeFileSync(outputFile, htmlContent);
-console.log('HTML 文件生成完成:', outputFile);
+// 遍历 images 文件夹中的子文件夹，并生成 HTML 文件
+function generateHTMLForAllFolders() {
+    fs.mkdirSync(outputDir, { recursive: true });
+    const folders = fs.readdirSync(imagesDir).filter(folder => fs.statSync(path.join(imagesDir, folder)).isDirectory());
+
+    folders.forEach(folder => {
+        const folderPath = path.join(imagesDir, folder);
+        const images = getImages(folderPath);
+        const htmlContent = generateHTML(images, folder);
+        const outputFile = path.join(outputDir, `${folder}.html`);
+        fs.writeFileSync(outputFile, htmlContent);
+        console.log('HTML 文件生成完成:', outputFile);
+    });
+}
+
+generateHTMLForAllFolders();
