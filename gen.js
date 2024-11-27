@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const repository = process.env.GITHUB_REPOSITORY;
-const cdn = https://cdn.jsdelivr.net/gh/${repository};
+const cdn = `https://cdn.jsdelivr.net/gh/${repository}`;
 // 读取图片文件夹
 const imagesDir = path.join(__dirname, 'images');
 const outputDir = path.join(__dirname, 'output');
@@ -29,7 +29,7 @@ function generateHTML(images, folderName) {
     });
     const sortedTags = Object.entries(tagCloud).sort((a, b) => b[1] - a[1]);
 
-    return 
+    return `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -225,14 +225,13 @@ function generateHTML(images, folderName) {
     <br>
     <h1>${folderName} 图片墙</h1>
     <div id="tag-cloud" class="tag-cloud">
-        ${sortedTags.map(([tag, count]) => 
+        ${sortedTags.map(([tag, count]) => `
             <a href="#" onclick="selectTag('${tag}', this)">${tag} (${count})</a>
-        ).join('')}
+        `).join('')}
     </div>
     <div class="gallery-item" onclick="openLightbox(event)">
         <img data-src="${cdn}/images/${folderName}/${image.name}" alt="${image.name}" title="${image.name}" class="lazy">
     </div>
-
 
     <div id="lightbox" onclick="closeLightbox()">
         <img id="lightbox-image" src="" alt="Lightbox Image" draggable="false">
@@ -385,13 +384,13 @@ function generateHTML(images, folderName) {
 
             const tagCloud = document.getElementById('tag-cloud');
             tagCloud.innerHTML = sortedRemainingTags.map(([tag, count]) =>
-                \<a href="#" onclick="selectTag('\${tag}', this)" class="\${selectedTags.includes(tag) ? 'selected' : ''}">\${tag} (\${count})</a>\
+                \`<a href="#" onclick="selectTag('\${tag}', this)" class="\${selectedTags.includes(tag) ? 'selected' : ''}">\${tag} (\${count})</a>\`
             ).join(' ');
         }
     </script>
 </body>
 </html>
-    ;
+    `;
 }
 
 // 遍历 images 文件夹中的子文件夹，并生成 HTML 文件
@@ -403,7 +402,7 @@ function generateHTMLForAllFolders() {
         const folderPath = path.join(imagesDir, folder);
         const images = getImages(folderPath);
         const htmlContent = generateHTML(images, folder);
-        const outputFile = path.join(outputDir, ${folder}.html);
+        const outputFile = path.join(outputDir, `${folder}.html`);
         fs.writeFileSync(outputFile, htmlContent);
         console.log('HTML 文件生成完成:', outputFile);
     });
