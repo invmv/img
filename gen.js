@@ -286,7 +286,7 @@ function generateHTML(images, folderName) {
 
         function updateTransform() {
             const lightboxImage = document.getElementById('lightbox-image');
-            lightboxImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            lightboxImage.style.transform = \`translate(\${translateX}px, \${translateY}px) scale(\${scale})\`;
         }
 
 
