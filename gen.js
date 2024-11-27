@@ -33,15 +33,105 @@ function generateHTML(images, folderName) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${folderName} 图片墙</title>
     <style>
-        body { margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .gallery { column-gap: 15px; max-width: 90%; margin: 0 auto; }
-        .gallery-item { margin-bottom: 15px; break-inside: avoid; position: relative; overflow: hidden; border-radius: 8px; cursor: pointer; }
-        .gallery-item img { width: 100%; height: auto; display: block; border-radius: 8px; }
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; z-index: 1000; }
-        #lightbox img { max-width: 90%; max-height: 90%; transform-origin: center center; transition: transform 0.3s; }
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .tag-cloud a {
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .tag-cloud a:hover {
+            opacity: 0.8;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            transform-origin: center center;
+            transition: transform 0.3s;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 <body>
+    <a href="index.html" class="back-button">返回主页</a>
     <h1>${folderName} 图片墙</h1>
     <div id="gallery" class="gallery">
         ${images.map(image => `
