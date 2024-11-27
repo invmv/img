@@ -229,10 +229,13 @@ function generateHTML(images, folderName) {
             <a href="#" onclick="selectTag('${tag}', this)">${tag} (${count})</a>
         `).join('')}
     </div>
-    <div class="gallery-item" onclick="openLightbox(event)">
-        <img data-src="${cdn}/images/${folderName}/${image.name}" alt="${image.name}" title="${image.name}" class="lazy">
+    <div id="gallery" class="gallery">
+        ${images.map(image => `
+            <div class="gallery-item" data-tags="${image.tags.join(' ')}" onclick="openLightbox(event)">
+                <img data-src="${cdn}/images/${folderName}/${image.name}" alt="${image.name}" title="${image.name}" class="lazy">
+            </div>
+        `).join('')}
     </div>
-
     <div id="lightbox" onclick="closeLightbox()">
         <img id="lightbox-image" src="" alt="Lightbox Image" draggable="false">
     </div>
