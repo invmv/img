@@ -11,7 +11,7 @@ const outputDir = path.join(__dirname, 'output');
 function getImages(folderPath) {
     const files = fs.readdirSync(folderPath);
     return files
-        .filter(file => /\.(jpg|jpeg|png|gif|webp)$/.test(file))
+        .filter(file => /\.(jpg|jpeg|png|gif|webp|avif)$/.test(file))
         .map(file => {
             const tags = file.split('-').slice(0, -1);
             return { name: file, tags };
